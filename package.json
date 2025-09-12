@@ -1,0 +1,46 @@
+{
+  "name": "@dee-soft/ginie-micro",
+  "version": "1.0.1",
+  "description": "CLI tool to generate microservice monorepo structures with REST or gRPC communication",
+  "main": "bin/ginie.js",
+  "bin": {
+    "ginie-micro": "./bin/ginie.js"
+  },
+  "scripts": {
+    "start": "node bin/ginie.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "audit": "npm audit --audit-level=moderate",
+    "security-check": "node utils/security.js"
+  },
+  "keywords": [
+    "microservice",
+    "generator",
+    "cli",
+    "monorepo",
+    "rest",
+    "grpc",
+    "nodejs"
+  ],
+  "author": "Dee-Soft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dee-Soft/Ginie-micro/issues"
+  },
+  "homepage": "https://github.com/Dee-Soft/Ginie-micro#readme",
+  "dependencies": {
+    "inquirer": "^8.2.4",
+    "fs-extra": "^11.1.0",
+    "chalk": "^4.1.2",
+    "commander": "^9.4.1",
+    "simple-git": "^3.15.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.4",
+    "eslint": "^8.48.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
