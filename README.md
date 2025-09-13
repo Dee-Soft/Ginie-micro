@@ -16,6 +16,7 @@ A secure CLI tool for generating microservice monorepo structures with REST or g
 ### Global Installation
 ```bash
 npm install -g ginie-micro
+```
 
 ### Using npx (Recommended)
 ```bash
@@ -49,17 +50,17 @@ npx ginie-micro
 
 ### 2. Follow the prompts:
 
-#### * Enter your project name
+    #### * Enter your project name
 
-#### * Choose REST or gRPC protocol
+    #### * Choose REST or gRPC protocol
 
-#### * Select whether to include API Gateway
+    #### * Select whether to include API Gateway
 
-#### * Choose Nginx load balancer option
+    #### * Choose Nginx load balancer option
 
-#### * Select whether to install Husky and Commitizen
+    #### * Select whether to install Husky and Commitizen
 
-#### * Enter your microservice names and choose their databases
+    #### * Enter your microservice names and choose their databases
 
 
 ### 3. Install dependencies:
@@ -75,6 +76,7 @@ npm run dev
 ```
 ## Project Structure
 
+`
 your-project/
 ├── docker-compose.yml
 ├── nginx.conf (if selected)
@@ -85,124 +87,125 @@ your-project/
 │   ├── user-microservice/
 │   └── payment-grpc-microservice/
 └── .husky/
+`
 
 ## Network 
 
-### * Gateway Network: External-facing network for API Gateway and Nginx
+    ### * Gateway Network: External-facing network for API Gateway and Nginx
 
-### * Internal Network: Isolated network for microservices and their databases
+    ### * Internal Network: Isolated network for microservices and their databases
 
-### * Service Isolation: Each microservice has its own database and optional Redis instance
+    ### * Service Isolation: Each microservice has its own database and optional Redis instance
 
 ## Available Scripts
 
-### * npm run ginie - Add new microservices to monorepo
+    ### * npm run ginie - Add new microservices to monorepo
 
-### * npm run commit - Create standardized commit messages
+    ### * npm run commit - Create standardized commit messages
 
-### * npm run dev - Run all microservices in development mode
+    ### * npm run dev - Run all microservices in development mode
 
-### * npm test - Run tests across all microservices
+    ### * npm test - Run tests across all microservices
 
-### * npm run audit - Run security audit
+    ### * npm run audit - Run security audit
 
-### * npm run security-check - Run additional security checks
+    ### * npm run security-check - Run additional security checks
 
-### * npm run compose:up - Start all Docker services
+    ### * npm run compose:up - Start all Docker services
 
-### * npm run compose:down - Stop all Docker services
+    ### * npm run compose:down - Stop all Docker services
 
-### * npm run compose:logs - View Docker service logs
+    ### * npm run compose:logs - View Docker service logs
 
 ## Database Support
 
-### * MongoDB: Document database (default)
+    ### * MongoDB: Document database (default)
 
-### * PostgreSQL: Relational database
+    ### * PostgreSQL: Relational database
 
-### * MySQL: Relational database
+    ### * MySQL: Relational database
 
-### * Redis: In-memory caching (optional for each microservice)
+    ### * Redis: In-memory caching (optional for each microservice)
 
 ## Protocol Support
 
-### REST Microservices
+    ### REST Microservices
 
-#### * Express.js framework
+        #### * Express.js framework
 
-#### * MVC architecture
+        #### * MVC architecture
 
-#### * RESTful API conventions
+        #### * RESTful API conventions
 
-#### * HTTP/JSON communication
+        #### * HTTP/JSON communication
 
-### gRPC Microservices
+    ### gRPC Microservices
 
-#### * Protocol Buffers (.proto files)
+        #### * Protocol Buffers (.proto files)
 
-#### * gRPC server and client setup
+        #### * gRPC server and client setup
 
-#### * Handler-based architecture
+        #### * Handler-based architecture
 
-#### * Bi-directional streaming support
+        #### * Bi-directional streaming support
 
 ## API Gateway Features
 
-### * Single entry point for all API requests
+    ### * Single entry point for all API requests
 
-### * Request routing and load balancing
+    ### * Request routing and load balancing
 
-### * Authentication and authorization
+    ### * Authentication and authorization
 
-### * Rate limiting
+    ### * Rate limiting
 
-### * Request/response transformation
+    ### * Request/response transformation
 
-### * Service discovery
+    ### * Service discovery
 
 ## Security Features
 
-### * Input validation and sanitization
+    ### * Input validation and sanitization
 
-### * Secure file path handling
+    ### * Secure file path handling
 
-### * Network isolation between services
+    ### * Network isolation between services
 
-### * Environment variable protection
+    ### * Environment variable protection
 
-### * Dependency vulnerability scanning
+    ### * Dependency vulnerability scanning
 
-### * Git hook security
+    ### * Git hook security
 
 ## Contributing
 
-### 1. Fork the repository
+    ### 1. Fork the repository
 
-### 2. Create a feature branch: git checkout -b feature/new-feature
+    ### 2. Create a feature branch: git checkout -b feature/new-feature
 
-### 3. Commit your changes: npm run commit
+    ### 3. Commit your changes: npm run commit
 
-### 4. Push to the branch: git push origin feature/new-feature
+    ### 4. Push to the branch: git push origin feature/new-feature
 
-### 5. Submit a pull request
+    ### 5. Submit a pull request
 
 ## License
 
-MIT License - see - [LICENSE](LICENSE.txt) file for details
+MIT License - see [LICENSE](LICENSE.txt) file for details
 
 ## Security
 
-For information on how to report a security vulnerability, please refer to our - [Security Policy](SECURITY.md)
+For information on how to report a security vulnerability, please refer to our [Security Policy](SECURITY.md)
 
 ## Support
 
 If you encounter any issues or have questions:
 
-### * Check the FAQ section below
+    ### * Check the FAQ section below
 
-### * Search existing GitHub Issues
+    ### * Search existing GitHub Issues
 
-### * Create a new issue with detailed information
+    ### * Create a new issue with detailed information
 
 ## FAQ
 

@@ -1,15 +1,14 @@
 
-## 2. SECURITY.md
-
-```markdown
 # Security Policy
 
 ## Supported Versions
 
+`
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.x.x   | :white_check_mark: |
 | < 1.0   | :x:                |
+`
 
 ## Reporting a Vulnerability
 
@@ -18,7 +17,7 @@ We take the security of ginie-micro seriously. If you believe you've found a sec
 ### Private Disclosure Process
 
 1. **Do not** create a public GitHub issue for security vulnerabilities
-2. Email security reports to: security@yourdomain.com
+2. Email security reports to: dee.soft.au@gmail.com
 3. Include detailed information about the vulnerability
 4. Provide steps to reproduce the issue
 5. Include any proof-of-concept code or examples
