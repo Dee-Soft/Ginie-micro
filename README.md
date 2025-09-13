@@ -50,12 +50,12 @@ npx ginie-micro
 
 ### 2. Follow the prompts:
 
-- Enter your project name
-- Choose REST or gRPC protocol
-- Select whether to include API Gateway
-- Choose Nginx load balancer option
-- Select whether to install Husky and Commitizen
-- Enter your microservice names and choose their databases
+- 👉 Enter your project name
+- 👉 Choose REST or gRPC protocol
+- 👉 Select whether to include API Gateway
+- 👉 Choose Nginx load balancer option
+- 👉 Select whether to install Husky and Commitizen
+- 👉 Enter your microservice names and choose their databases
 
 
 ### 3. Install dependencies:
@@ -86,71 +86,71 @@ your-project/
 
 ## Network 
 
-- Gateway Network: External-facing network for API Gateway and Nginx
-- Internal Network: Isolated network for microservices and their databases
-- Service Isolation: Each microservice has its own database and optional Redis instance
+- ✅ Gateway Network: External-facing network for API Gateway and Nginx
+- ✅ Internal Network: Isolated network for microservices and their databases
+- ✅ Service Isolation: Each microservice has its own database and optional Redis instance
 
 ## Available Scripts
 
-- To add new microservices to monorepo
+- 👉 To add new microservices to monorepo
 ```bash
 npm run ginie
 ```
-- To create standardized commit messages
+- 👉 To create standardized commit messages
 ```bash
 npm run commit
 ```
-- To run all microservices in development mode
+- 👉 To run all microservices in development mode
 ```bash
 npm run dev
 ```
-- To run tests across all microservices
+- 👉 To run tests across all microservices
 ```bash
 npm test
 ```
-- To run security audit
+- 👉 To run security audit
 ```bash
 npm run audit
 ```
-- To run additional security checks
+- 👉 To run additional security checks
 ```bash
 npm run security-check
 ```
-- To start all Docker services
+- 👉 To start all Docker services
 ```bash
 npm run compose:up
 ```
--To stop all Docker services
+- 👉 To stop all Docker services
 ```bash
 npm run compose:down
 ```
--To view Docker service logs
+- 👉 To view Docker service logs
 ```bash
 npm run compose:logs
 ```
 
 ## Database Support
 
-- MongoDB: Document database (default)
-- PostgreSQL: Relational database
-- MySQL: Relational database
-- Redis: In-memory caching (optional for each microservice)
+- ✅ MongoDB: Document database (default)
+- ✅ PostgreSQL: Relational database
+- ✅ MySQL: Relational database
+- ✅ Redis: In-memory caching (optional for each microservice)
 
 ## Protocol Support
 
-    ### REST Microservices
+### REST Microservices
 
-    - Express.js framework
-    - MVC architecture
-    - RESTful API conventions
-    - HTTP/JSON communication
+- ✅ Express.js framework
+- ✅ MVC architecture
+- ✅ RESTful API conventions
+- ✅ HTTP/JSON communication
 
-    ### gRPC Microservices
+### gRPC Microservices
 
-    - Protocol Buffers (.proto files)
-    - gRPC server and client setup
-    - Handler-based architecture
-    - Bi-directional streaming support
+- ✅ Protocol Buffers (.proto files)
+- ✅ gRPC server and client setup
+- ✅ Handler-based architecture
+- ✅ Bi-directional streaming support
 
 ## API Gateway Features
 
