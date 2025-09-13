@@ -20,7 +20,7 @@ npm install -g ginie-micro
 
 ### Using npx (Recommended)
 ```bash
-npx ginie-
+npx ginie-micro
 ```
 
 ## Usage
@@ -50,17 +50,12 @@ npx ginie-micro
 
 ### 2. Follow the prompts:
 
-    #### * Enter your project name
-
-    #### * Choose REST or gRPC protocol
-
-    #### * Select whether to include API Gateway
-
-    #### * Choose Nginx load balancer option
-
-    #### * Select whether to install Husky and Commitizen
-
-    #### * Enter your microservice names and choose their databases
+- Enter your project name
+- Choose REST or gRPC protocol
+- Select whether to include API Gateway
+- Choose Nginx load balancer option
+- Select whether to install Husky and Commitizen
+- Enter your microservice names and choose their databases
 
 
 ### 3. Install dependencies:
@@ -76,7 +71,7 @@ npm run dev
 ```
 ## Project Structure
 
-`
+```
 your-project/
 ├── docker-compose.yml
 ├── nginx.conf (if selected)
@@ -87,107 +82,101 @@ your-project/
 │   ├── user-microservice/
 │   └── payment-grpc-microservice/
 └── .husky/
-`
+```
 
 ## Network 
 
-    ### * Gateway Network: External-facing network for API Gateway and Nginx
-
-    ### * Internal Network: Isolated network for microservices and their databases
-
-    ### * Service Isolation: Each microservice has its own database and optional Redis instance
+- Gateway Network: External-facing network for API Gateway and Nginx
+- Internal Network: Isolated network for microservices and their databases
+- Service Isolation: Each microservice has its own database and optional Redis instance
 
 ## Available Scripts
 
-    ### * npm run ginie - Add new microservices to monorepo
-
-    ### * npm run commit - Create standardized commit messages
-
-    ### * npm run dev - Run all microservices in development mode
-
-    ### * npm test - Run tests across all microservices
-
-    ### * npm run audit - Run security audit
-
-    ### * npm run security-check - Run additional security checks
-
-    ### * npm run compose:up - Start all Docker services
-
-    ### * npm run compose:down - Stop all Docker services
-
-    ### * npm run compose:logs - View Docker service logs
+- To add new microservices to monorepo
+```bash
+npm run ginie
+```
+- To create standardized commit messages
+```bash
+npm run commit
+```
+- To run all microservices in development mode
+```bash
+npm run dev
+```
+- To run tests across all microservices
+```bash
+npm test
+```
+- To run security audit
+```bash
+npm run audit
+```
+- To run additional security checks
+```bash
+npm run security-check
+```
+- To start all Docker services
+```bash
+npm run compose:up
+```
+-To stop all Docker services
+```bash
+npm run compose:down
+```
+-To view Docker service logs
+```bash
+npm run compose:logs
+```
 
 ## Database Support
 
-    ### * MongoDB: Document database (default)
-
-    ### * PostgreSQL: Relational database
-
-    ### * MySQL: Relational database
-
-    ### * Redis: In-memory caching (optional for each microservice)
+- MongoDB: Document database (default)
+- PostgreSQL: Relational database
+- MySQL: Relational database
+- Redis: In-memory caching (optional for each microservice)
 
 ## Protocol Support
 
     ### REST Microservices
 
-        #### * Express.js framework
-
-        #### * MVC architecture
-
-        #### * RESTful API conventions
-
-        #### * HTTP/JSON communication
+    - Express.js framework
+    - MVC architecture
+    - RESTful API conventions
+    - HTTP/JSON communication
 
     ### gRPC Microservices
 
-        #### * Protocol Buffers (.proto files)
-
-        #### * gRPC server and client setup
-
-        #### * Handler-based architecture
-
-        #### * Bi-directional streaming support
+    - Protocol Buffers (.proto files)
+    - gRPC server and client setup
+    - Handler-based architecture
+    - Bi-directional streaming support
 
 ## API Gateway Features
 
-    ### * Single entry point for all API requests
-
-    ### * Request routing and load balancing
-
-    ### * Authentication and authorization
-
-    ### * Rate limiting
-
-    ### * Request/response transformation
-
-    ### * Service discovery
+- ✅ Single entry point for all API requests
+- ✅ Request routing and load balancing
+- ✅ Authentication and authorization
+- ✅ Rate limiting
+- ✅ Request/response transformation
+- ✅ Service discovery
 
 ## Security Features
 
-    ### * Input validation and sanitization
-
-    ### * Secure file path handling
-
-    ### * Network isolation between services
-
-    ### * Environment variable protection
-
-    ### * Dependency vulnerability scanning
-
-    ### * Git hook security
+- ✅ Input validation and sanitization
+- ✅ Secure file path handling
+- ✅ Network isolation between services
+- ✅ Environment variable protection
+- ✅ Dependency vulnerability scanning
+- ✅ Git hook security
 
 ## Contributing
 
-    ### 1. Fork the repository
-
-    ### 2. Create a feature branch: git checkout -b feature/new-feature
-
-    ### 3. Commit your changes: npm run commit
-
-    ### 4. Push to the branch: git push origin feature/new-feature
-
-    ### 5. Submit a pull request
+1. Fork the repository
+2. Create a feature branch: git checkout -b feature/new-feature
+3. Commit your changes: npm run commit
+4. Push to the branch: git push origin feature/new-feature
+5. Submit a pull request
 
 ## License
 
@@ -201,11 +190,9 @@ For information on how to report a security vulnerability, please refer to our [
 
 If you encounter any issues or have questions:
 
-    ### * Check the FAQ section below
-
-    ### * Search existing GitHub Issues
-
-    ### * Create a new issue with detailed information
+- Check the FAQ section below
+- Search existing GitHub Issues
+- Create a new issue with detailed information
 
 ## FAQ
 
