@@ -92,39 +92,47 @@ your-project/
 
 ## Available Scripts
 
-- 👉 To add new microservices to monorepo
+👉 To add new microservices to monorepo
 ```bash
 npm run ginie
 ```
-- 👉 To create standardized commit messages
+
+👉 To create standardized commit messages
 ```bash
 npm run commit
 ```
-- 👉 To run all microservices in development mode
+
+👉 To run all microservices in development mode
 ```bash
 npm run dev
 ```
-- 👉 To run tests across all microservices
+
+👉 To run tests across all microservices
 ```bash
 npm test
 ```
-- 👉 To run security audit
+
+👉 To run security audit
 ```bash
 npm run audit
 ```
-- 👉 To run additional security checks
+
+👉 To run additional security checks
 ```bash
 npm run security-check
 ```
-- 👉 To start all Docker services
+
+👉 To start all Docker services
 ```bash
 npm run compose:up
 ```
-- 👉 To stop all Docker services
+
+👉 To stop all Docker services
 ```bash
 npm run compose:down
 ```
-- 👉 To view Docker service logs
+
+👉 To view Docker service logs
 ```bash
 npm run compose:logs
 ```
