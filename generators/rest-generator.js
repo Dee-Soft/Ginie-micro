@@ -4,7 +4,7 @@ const inquirer = require('inquirer');
 
 const { sanitizeFileName, validateMicroserviceName } = require('../utils/security');
 
-async function generateRestMicroservice(serviceName) {
+async function generateRestMicroservice(serviceName, databaseType = 'mongodb', includeRedis = true) {
   const microserviceName = `${serviceName}-microservice`;
   const basePath = path.join(process.cwd(), microserviceName);
 
@@ -18,9 +18,31 @@ async function generateRestMicroservice(serviceName) {
   const { nodeImage } = await inquirer.prompt([{
     type: 'input',
     name: 'nodeImage',
-    message: `Node.js image for ${serviceName} Dockerfile (default: 18-alpine):`,
-    default: '18-alpine'
+    message: `Node.js image for ${serviceName} Dockerfile (default: 24-alpine):`,
+    default: '24-alpine'
   }]);
+
+  // Add database-specific environment variables
+  const envContent = `# ${serviceName} Microservice Configuration
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=info
+
+# Database Configuration
+DB_HOST=${serviceName}-db
+DB_PORT=${databaseType === 'mongodb' ? '27017' : databaseType === 'postgres' ? '5432' : '3306'}
+DB_NAME=${serviceName}_db
+DB_USER=user
+DB_PASSWORD=password
+
+# Redis Configuration
+${includeRedis ? `REDIS_HOST=${serviceName}-redis
+REDIS_PORT=6379` : '# REDIS_HOST=redis\n# REDIS_PORT=6379'}
+`;
+
+  await fs.writeFile(path.join(basePath, '.env'), envContent);
+  await fs.writeFile(path.join(basePath, '.env.example'), envContent);
+  
   
   // Create directory structure
   await fs.ensureDir(basePath);

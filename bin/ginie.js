@@ -4,17 +4,19 @@ const chalk = require('chalk');
 const fs = require('fs-extra');
 const path = require('path');
 const simpleGit = require('simple-git');
-const { securityCheck } = require('../utils/security');
+const { securityCheck, sanitizeFileName, validateMicroserviceName } = require('../utils/security');
+const { generateDockerCompose, updateDockerCompose } = require('../utils/docker-compose-generator');
 
 // Import generators
 const generateRestMicroservice = require('../generators/rest-generator');
 const generateGrpcMicroservice = require('../generators/grpc-generator');
+const generateApiGateway = require('../generators/api-gateway-generator');
 
 program
   .version('1.0.0')
-  .description('Ginie - Microservice Monorepo Generator')
+  .description('Ginie-Micro - Microservice Monorepo Generator')
   .action(async () => {
-    console.log(chalk.blue.bold('\n🛠️  Welcome to Ginie Microservice Generator!\n'));
+    console.log(chalk.blue.bold('\n🛠️  Welcome to Ginie-Micro Microservice Generator!\n'));
     
     try {
       // Run security check
@@ -77,6 +79,19 @@ async function createNewMonorepo() {
       name: 'installCommitizen',
       message: 'Would you like to install Commitizen for standardized commits?',
       default: true
+    },
+    {
+      type: 'confirm',
+      name: 'includeApiGateway',
+      message: 'Would you like to include an API Gateway?',
+      default: true
+    },
+    {
+      type: 'confirm',
+      name: 'includeNginx',
+      message: 'Would you like to include Nginx load balancer?',
+      default: false,
+      when: answers => answers.includeApiGateway
     }
   ]);
   
@@ -107,8 +122,25 @@ async function createNewMonorepo() {
   const microservicesPath = path.join(projectPath, 'microservices');
   await fs.mkdir(microservicesPath);
   
+  // Generate API Gateway if selected
+  if (answers.includeApiGateway) {
+    process.chdir(microservicesPath);
+    await generateApiGateway(answers.includeNginx);
+    console.log(chalk.green('✓ Generated API Gateway'));
+  }
+  
   // Generate initial microservices
   await generateInitialMicroservices(microservicesPath, answers);
+  
+  // Generate Docker Compose file
+  await generateDockerCompose(projectPath, answers);
+  console.log(chalk.green('✓ Generated docker-compose.yml'));
+  
+  // Generate Nginx config if selected
+  if (answers.includeNginx) {
+    await generateNginxConfig(projectPath);
+    console.log(chalk.green('✓ Generated nginx.conf'));
+  }
   
   // Set up git hooks if selected
   if (answers.installHusky) {
@@ -119,11 +151,13 @@ async function createNewMonorepo() {
   console.log(chalk.blue('\nNext steps:'));
   console.log(`  cd ${answers.projectName}`);
   console.log('  npm install');
+  console.log('  docker-compose up -d');
   console.log('  # Start developing your microservices!');
 }
 
 async function addMicroserviceToMonorepo() {
   const packageJson = await fs.readJson('package.json');
+  const projectPath = process.cwd();
   
   const answers = await inquirer.prompt([
     {
@@ -140,20 +174,47 @@ async function addMicroserviceToMonorepo() {
       name: 'microserviceName',
       message: 'Enter microservice name:',
       validate: input => input ? true : 'Microservice name is required'
+    },
+    {
+      type: 'list',
+      name: 'database',
+      message: 'Choose database type:',
+      choices: [
+        { name: 'MongoDB', value: 'mongodb' },
+        { name: 'PostgreSQL', value: 'postgres' },
+        { name: 'MySQL', value: 'mysql' }
+      ],
+      default: 'mongodb'
+    },
+    {
+      type: 'confirm',
+      name: 'includeRedis',
+      message: 'Include Redis for caching?',
+      default: true
     }
   ]);
   
-  const microservicesPath = path.join(process.cwd(), 'microservices');
+  const microservicesPath = path.join(projectPath, 'microservices');
   await fs.ensureDir(microservicesPath);
   process.chdir(microservicesPath);
   
   if (answers.protocol === 'rest') {
-    await generateRestMicroservice(answers.microserviceName);
+    await generateRestMicroservice(answers.microserviceName, answers.database, answers.includeRedis);
   } else {
-    await generateGrpcMicroservice(answers.microserviceName);
+    await generateGrpcMicroservice(answers.microserviceName, answers.database, answers.includeRedis);
   }
   
   console.log(chalk.green(`✓ Added ${answers.microserviceName} microservice to monorepo`));
+  
+  // Update Docker Compose with new service
+  await updateDockerCompose(projectPath, {
+    name: answers.microserviceName,
+    protocol: answers.protocol,
+    database: answers.database,
+    includeRedis: answers.includeRedis
+  });
+  
+  console.log(chalk.green('✓ Updated docker-compose.yml with new service'));
 }
 
 async function createMonorepoPackageJson(answers) {
@@ -164,14 +225,18 @@ async function createMonorepoPackageJson(answers) {
     scripts: {
       "dev": "concurrently \"npm run dev --workspace=*\"",
       "test": "jest",
-      "ginie": "npx ginie",  // Added ginie script
+      "ginie": "npx ginie-micro",
       "audit": "npm audit --audit-level=moderate",
-      "security-check": "npx ginie --security-check"
+      "security-check": "npx ginie-micro --security-check",
+      "compose:up": "docker-compose up -d",
+      "compose:down": "docker-compose down",
+      "compose:logs": "docker-compose logs -f"
     },
     "devDependencies": {},
     "workspaces": [
       "microservices/*-microservice",
-      "microservices/*-grpc-microservice"
+      "microservices/*-grpc-microservice",
+      "microservices/api-gateway"
     ]
   };
   
@@ -211,12 +276,32 @@ async function generateInitialMicroservices(microservicesPath, answers) {
   ]);
   
   for (const service of microservices) {
+    const serviceAnswers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'database',
+        message: `Choose database type for ${service}:`,
+        choices: [
+          { name: 'MongoDB', value: 'mongodb' },
+          { name: 'PostgreSQL', value: 'postgres' },
+          { name: 'MySQL', value: 'mysql' }
+        ],
+        default: 'mongodb'
+      },
+      {
+        type: 'confirm',
+        name: 'includeRedis',
+        message: `Include Redis for ${service} caching?`,
+        default: true
+      }
+    ]);
+    
     process.chdir(microservicesPath);
     
     if (answers.protocol === 'rest') {
-      await generateRestMicroservice(service);
+      await generateRestMicroservice(service, serviceAnswers.database, serviceAnswers.includeRedis);
     } else {
-      await generateGrpcMicroservice(service);
+      await generateGrpcMicroservice(service, serviceAnswers.database, serviceAnswers.includeRedis);
     }
     
     console.log(chalk.green(`✓ Generated ${service} microservice`));
@@ -240,6 +325,42 @@ async function setupHusky(projectPath) {
   await fs.chmod(path.join(huskyDir, 'pre-commit'), '755');
   
   console.log(chalk.green('✓ Husky configured with pre-commit hook'));
+}
+
+async function generateNginxConfig(projectPath) {
+  const nginxConfig = `# Nginx Load Balancer Configuration
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream api_gateway {
+        server api-gateway:3000;
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        location / {
+            proxy_pass http://api_gateway;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 "healthy\\n";
+            add_header Content-Type text/plain;
+        }
+    }
+}
+`;
+  
+  await fs.writeFile(path.join(projectPath, 'nginx.conf'), nginxConfig);
 }
 
 // Add security check command

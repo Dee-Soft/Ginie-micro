@@ -10,6 +10,10 @@ A secure CLI tool for generating microservice monorepo structures with REST or g
 - ✅ Security-hardened generation process
 - ✅ Workspace configuration for monorepo management
 - ✅ Docker-ready microservices
+- ✅ API Gateway generation
+- ✅ Docker Compose configuration
+- ✅ Database and caching setup (MongoDB + Redis)
+- ✅ Nginx load balancer option
 
 ## Installation
 
@@ -52,11 +56,12 @@ npx ginie-micro
 
 - 👉 Enter your project name
 - 👉 Choose REST or gRPC protocol
-- 👉 Select whether to include API Gateway
-- 👉 Choose Nginx load balancer option
 - 👉 Select whether to install Husky and Commitizen
-- 👉 Enter your microservice names and choose their databases
-
+- 👉 Enter your microservice names
+- 👉 Choose database type (default: MongoDB)
+- 👉 Select Redis caching option
+- 👉 Choose API Gateway option
+- 👉 Select Nginx load balancer option
 
 ### 3. Install dependencies:
 ```bash
@@ -73,14 +78,14 @@ npm run dev
 
 ```
 your-project/
+├── package.json
 ├── docker-compose.yml
 ├── nginx.conf (if selected)
-├── package.json
 ├── microservices/
-│   ├── api-gateway/ (if selected)
-│   ├── auth-microservice/
-│   ├── user-microservice/
-│   └── payment-grpc-microservice/
+│   ├── auth-microservice (example)/
+│   ├── user-microservice(example)/
+│   ├── payment-grpc-microservice(example)/
+│   └── api-gateway/ (if selected)
 └── .husky/
 ```
 
@@ -97,7 +102,7 @@ your-project/
 npm run ginie
 ```
 
-👉 To create standardized commit messages
+👉 To create standardized commit messages (if Commitizen installed)
 ```bash
 npm run commit
 ```
@@ -136,6 +141,13 @@ npm run compose:down
 ```bash
 npm run compose:logs
 ```
+
+## Database & Caching
+
+- ✅ MongoDB (default): Document database for each microservice
+- ✅ Redis - In-memory caching for improved performance
+- ✅ Isolated Databases - Each microservice has its own database instance
+- ✅ Dockerized - All databases run in isolated Docker containers
 
 ## Database Support
 

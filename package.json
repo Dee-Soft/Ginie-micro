@@ -1,17 +1,24 @@
 {
   "name": "@dee-soft/ginie-micro",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI tool to generate microservice monorepo structures with REST or gRPC communication",
   "main": "bin/ginie.js",
   "bin": {
     "ginie-micro": "./bin/ginie.js"
   },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
   "scripts": {
     "start": "node bin/ginie.js",
+    "commit": "git-cz",
     "test": "jest",
     "lint": "eslint .",
     "audit": "npm audit --audit-level=moderate",
-    "security-check": "node utils/security.js"
+    "security-check": "node utils/security.js",
+    "prepare": "husky install"
   },
   "keywords": [
     "microservice",
@@ -29,15 +36,20 @@
   },
   "homepage": "https://github.com/Dee-Soft/Ginie-micro#readme",
   "dependencies": {
-    "inquirer": "^8.2.4",
-    "fs-extra": "^11.1.0",
     "chalk": "^4.1.2",
     "commander": "^9.4.1",
+    "fs-extra": "^11.1.0",
+    "inquirer": "^8.2.4",
     "simple-git": "^3.15.0"
   },
   "devDependencies": {
-    "jest": "^29.6.4",
-    "eslint": "^8.48.0"
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.48.0",
+    "husky": "^9.1.7",
+    "jest": "^29.6.4"
   },
   "engines": {
     "node": ">=16.0.0",
