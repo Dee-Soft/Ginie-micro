@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { program } = require('commander');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
@@ -6,6 +8,7 @@ const path = require('path');
 const simpleGit = require('simple-git');
 const { securityCheck, sanitizeFileName, validateMicroserviceName } = require('../utils/security');
 const { generateDockerCompose, updateDockerCompose } = require('../utils/docker-compose-generator');
+const generateNginxConfig = require('../utils/nginx-config-generator');
 
 // Import generators
 const generateRestMicroservice = require('../generators/rest-generator');
@@ -125,7 +128,7 @@ async function createNewMonorepo() {
   // Generate API Gateway if selected
   if (answers.includeApiGateway) {
     process.chdir(microservicesPath);
-    await generateApiGateway(answers.includeNginx);
+    await generateApiGateway();
     console.log(chalk.green('✓ Generated API Gateway'));
   }
   
@@ -136,7 +139,7 @@ async function createNewMonorepo() {
   await generateDockerCompose(projectPath, answers);
   console.log(chalk.green('✓ Generated docker-compose.yml'));
   
-  // Generate Nginx config if selected
+  // Generate Nginx config only if selected
   if (answers.includeNginx) {
     await generateNginxConfig(projectPath);
     console.log(chalk.green('✓ Generated nginx.conf'));
@@ -151,7 +154,9 @@ async function createNewMonorepo() {
   console.log(chalk.blue('\nNext steps:'));
   console.log(`  cd ${answers.projectName}`);
   console.log('  npm install');
-  console.log('  docker-compose up -d');
+  if (answers.includeNginx || answers.includeApiGateway) {
+    console.log('  docker-compose up -d');
+  }
   console.log('  # Start developing your microservices!');
 }
 
@@ -173,7 +178,11 @@ async function addMicroserviceToMonorepo() {
       type: 'input',
       name: 'microserviceName',
       message: 'Enter microservice name:',
-      validate: input => input ? true : 'Microservice name is required'
+      validate: input => {
+        if (!input) return 'Microservice name is required';
+        validateMicroserviceName(input);
+        return true;
+      }
     },
     {
       type: 'list',
@@ -194,21 +203,22 @@ async function addMicroserviceToMonorepo() {
     }
   ]);
   
+  const sanitizedServiceName = sanitizeFileName(answers.microserviceName);
   const microservicesPath = path.join(projectPath, 'microservices');
   await fs.ensureDir(microservicesPath);
   process.chdir(microservicesPath);
   
   if (answers.protocol === 'rest') {
-    await generateRestMicroservice(answers.microserviceName, answers.database, answers.includeRedis);
+    await generateRestMicroservice(sanitizedServiceName, answers.database, answers.includeRedis);
   } else {
-    await generateGrpcMicroservice(answers.microserviceName, answers.database, answers.includeRedis);
+    await generateGrpcMicroservice(sanitizedServiceName, answers.database, answers.includeRedis);
   }
   
-  console.log(chalk.green(`✓ Added ${answers.microserviceName} microservice to monorepo`));
+  console.log(chalk.green(`✓ Added ${sanitizedServiceName} microservice to monorepo`));
   
   // Update Docker Compose with new service
   await updateDockerCompose(projectPath, {
-    name: answers.microserviceName,
+    name: sanitizedServiceName,
     protocol: answers.protocol,
     database: answers.database,
     includeRedis: answers.includeRedis
@@ -240,7 +250,6 @@ async function createMonorepoPackageJson(answers) {
     ]
   };
   
-  // Add commit script if commitizen is selected
   if (answers.installCommitizen) {
     packageJson.scripts.commit = "git-cz";
     packageJson.config = {
@@ -250,7 +259,6 @@ async function createMonorepoPackageJson(answers) {
     };
   }
   
-  // Add husky and commitizen if selected
   if (answers.installHusky) {
     packageJson.scripts.prepare = "husky install";
     packageJson.devDependencies.husky = "^8.0.0";
@@ -276,6 +284,9 @@ async function generateInitialMicroservices(microservicesPath, answers) {
   ]);
   
   for (const service of microservices) {
+    validateMicroserviceName(service);
+    const sanitizedServiceName = sanitizeFileName(service);
+    
     const serviceAnswers = await inquirer.prompt([
       {
         type: 'list',
@@ -299,12 +310,12 @@ async function generateInitialMicroservices(microservicesPath, answers) {
     process.chdir(microservicesPath);
     
     if (answers.protocol === 'rest') {
-      await generateRestMicroservice(service, serviceAnswers.database, serviceAnswers.includeRedis);
+      await generateRestMicroservice(sanitizedServiceName, serviceAnswers.database, serviceAnswers.includeRedis);
     } else {
-      await generateGrpcMicroservice(service, serviceAnswers.database, serviceAnswers.includeRedis);
+      await generateGrpcMicroservice(sanitizedServiceName, serviceAnswers.database, serviceAnswers.includeRedis);
     }
     
-    console.log(chalk.green(`✓ Generated ${service} microservice`));
+    console.log(chalk.green(`✓ Generated ${sanitizedServiceName} microservice`));
   }
 }
 
@@ -312,10 +323,8 @@ async function setupHusky(projectPath) {
   console.log(chalk.blue('Setting up Husky...'));
   const { execSync } = require('child_process');
   
-  // Use npm exec to run husky install
   execSync('npm exec -- husky install', { stdio: 'inherit', cwd: projectPath });
   
-  // Add sample pre-commit hook
   const huskyDir = path.join(projectPath, '.husky');
   await fs.ensureDir(huskyDir);
   await fs.writeFile(
@@ -325,42 +334,6 @@ async function setupHusky(projectPath) {
   await fs.chmod(path.join(huskyDir, 'pre-commit'), '755');
   
   console.log(chalk.green('✓ Husky configured with pre-commit hook'));
-}
-
-async function generateNginxConfig(projectPath) {
-  const nginxConfig = `# Nginx Load Balancer Configuration
-events {
-    worker_connections 1024;
-}
-
-http {
-    upstream api_gateway {
-        server api-gateway:3000;
-    }
-
-    server {
-        listen 80;
-        server_name localhost;
-
-        location / {
-            proxy_pass http://api_gateway;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        # Health check endpoint
-        location /health {
-            access_log off;
-            return 200 "healthy\\n";
-            add_header Content-Type text/plain;
-        }
-    }
-}
-`;
-  
-  await fs.writeFile(path.join(projectPath, 'nginx.conf'), nginxConfig);
 }
 
 // Add security check command

@@ -4,12 +4,14 @@ const path = require('path');
 async function generateApiGateway(includeNginx = false) {
   const gatewayName = 'api-gateway';
   const basePath = path.join(process.cwd(), gatewayName);
+
+  console.log(`\nGenerating ${gatewayName} structure...\n`);
   
   // Create directory structure
   await fs.ensureDir(basePath);
   
   // Create Dockerfile
-  const dockerfileContent = `FROM node:18-alpine
+  const dockerfileContent = `FROM node:24-alpine
 
 WORKDIR /app
 

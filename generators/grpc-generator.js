@@ -4,16 +4,16 @@ const inquirer = require('inquirer');
 
 const { sanitizeFileName, validateMicroserviceName } = require('../utils/security');
 
-async function generateGrpcMicroservice(serviceName, databaseType = 'mongodb', includeRedis = true) {
-  const microserviceName = `${serviceName}-grpc-microservice`;
-  const basePath = path.join(process.cwd(), microserviceName);
-
+async function generateGrpcMicroservice(serviceName, databaseType, includeRedis) {
   // Validate service name
   validateMicroserviceName(serviceName);
-  
+
   // Sanitize for file names
-  const sanitizedName = sanitizeFileName(serviceName);
+  const sanitizedServiceName = sanitizeFileName(serviceName);
   
+  const microserviceName = `${sanitizedServiceName}-grpc-microservice`;
+  const basePath = path.join(process.cwd(), microserviceName);
+
   // Ask for Node.js image version for Dockerfile
   const { nodeImage } = await inquirer.prompt([{
     type: 'input',
@@ -26,7 +26,7 @@ async function generateGrpcMicroservice(serviceName, databaseType = 'mongodb', i
   await fs.ensureDir(basePath);
 
   // Add database-specific environment variables
-  const envContent = `# ${serviceName} Microservice Configuration
+  const envContent = `# ${sanitizedServiceName} Microservice Configuration
 NODE_ENV=development
 PORT=3000
 LOG_LEVEL=info
@@ -39,7 +39,7 @@ DB_USER=user
 DB_PASSWORD=password
 
 # Redis Configuration
-${includeRedis ? `REDIS_HOST=${serviceName}-redis
+${includeRedis ? `REDIS_HOST=${sanitizedServiceName}-redis
 REDIS_PORT=6379` : '# REDIS_HOST=redis\n# REDIS_PORT=6379'}
 `;
 
@@ -76,7 +76,7 @@ CMD ["npm", "start"]
   const packageJson = {
     name: microserviceName,
     version: '1.0.0',
-    description: `${serviceName} gRPC microservice`,
+    description: `${sanitizedServiceName} gRPC microservice`,
     main: 'src/server.js',
     scripts: {
       start: 'node src/server.js',
@@ -117,15 +117,15 @@ CMD ["npm", "start"]
   
   // Create empty files
   const files = [
-    `proto/${serviceName}.proto`,
+    `proto/${sanitizedServiceName}.proto`,
     'src/server.js',
     'src/client.js',
     'src/config/grpc.js',
-    `src/handlers/${serviceName}.handler.js`,
-    `src/services/${serviceName}.service.js`,
+    `src/handlers/${sanitizedServiceName}.handler.js`,
+    `src/services/${sanitizedServiceName}.service.js`,
     'src/utils/logger.js',
     'src/utils/helpers.js',
-    `tests/${serviceName}.test.js`,
+    `tests/${sanitizedServiceName}.test.js`,
     'tests/server.test.js',
     'tests/client.test.js'
   ];

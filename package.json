@@ -37,10 +37,11 @@
   "homepage": "https://github.com/Dee-Soft/Ginie-micro#readme",
   "dependencies": {
     "chalk": "^4.1.2",
-    "commander": "^9.4.1",
-    "fs-extra": "^11.1.0",
-    "inquirer": "^8.2.4",
-    "simple-git": "^3.15.0"
+    "commander": "^9.5.0",
+    "fs-extra": "^11.3.1",
+    "inquirer": "^8.2.7",
+    "js-yaml": "^4.1.0",
+    "simple-git": "^3.28.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",

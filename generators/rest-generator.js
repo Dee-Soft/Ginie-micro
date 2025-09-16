@@ -4,39 +4,40 @@ const inquirer = require('inquirer');
 
 const { sanitizeFileName, validateMicroserviceName } = require('../utils/security');
 
-async function generateRestMicroservice(serviceName, databaseType = 'mongodb', includeRedis = true) {
-  const microserviceName = `${serviceName}-microservice`;
-  const basePath = path.join(process.cwd(), microserviceName);
-
+async function generateRestMicroservice(serviceName, databaseType, includeRedis) {
   // Validate service name
   validateMicroserviceName(serviceName);
-  
+
   // Sanitize for file names
-  const sanitizedName = sanitizeFileName(serviceName);
+  const sanitizedServiceName = sanitizeFileName(serviceName);
+  
+  const microserviceName = `${sanitizedServiceName}-microservice`;
+  const basePath = path.join(process.cwd(), microserviceName);
+
   
   // Ask for Node.js image version for Dockerfile
   const { nodeImage } = await inquirer.prompt([{
     type: 'input',
     name: 'nodeImage',
-    message: `Node.js image for ${serviceName} Dockerfile (default: 24-alpine):`,
+    message: `Node.js image for ${sanitizedServiceName} Dockerfile (default: 24-alpine):`,
     default: '24-alpine'
   }]);
 
   // Add database-specific environment variables
-  const envContent = `# ${serviceName} Microservice Configuration
+  const envContent = `# ${sanitizedServiceName} Microservice Configuration
 NODE_ENV=development
 PORT=3000
 LOG_LEVEL=info
 
 # Database Configuration
-DB_HOST=${serviceName}-db
+DB_HOST=${sanitizedServiceName}-db
 DB_PORT=${databaseType === 'mongodb' ? '27017' : databaseType === 'postgres' ? '5432' : '3306'}
-DB_NAME=${serviceName}_db
+DB_NAME=${sanitizedServiceName}_db
 DB_USER=user
 DB_PASSWORD=password
 
 # Redis Configuration
-${includeRedis ? `REDIS_HOST=${serviceName}-redis
+${includeRedis ? `REDIS_HOST=${sanitizedServiceName}-redis
 REDIS_PORT=6379` : '# REDIS_HOST=redis\n# REDIS_PORT=6379'}
 `;
 
@@ -75,7 +76,7 @@ CMD ["npm", "start"]
   const packageJson = {
     name: microserviceName,
     version: '1.0.0',
-    description: `${serviceName} REST microservice`,
+    description: `${sanitizedServiceName} REST microservice`,
     main: 'src/app.js',
     scripts: {
       start: 'node src/app.js',
@@ -121,16 +122,16 @@ CMD ["npm", "start"]
     'src/app.js',
     'src/config/database.js',
     'src/config/server.js',
-    `src/controllers/${serviceName}.controller.js`,
-    `src/models/${serviceName}.model.js`,
-    `src/routes/${serviceName}.routes.js`,
+    `src/controllers/${sanitizedServiceName}.controller.js`,
+    `src/models/${sanitizedServiceName}.model.js`,
+    `src/routes/${sanitizedServiceName}.routes.js`,
     'src/routes/index.js',
-    `src/services/${serviceName}.service.js`,
+    `src/services/${sanitizedServiceName}.service.js`,
     'src/middleware/validation.js',
     'src/middleware/errorHandler.js',
     'src/utils/logger.js',
     'src/utils/helpers.js',
-    `tests/${serviceName}.test.js`,
+    `tests/${sanitizedServiceName}.test.js`,
     'tests/setup.js'
   ];
   
