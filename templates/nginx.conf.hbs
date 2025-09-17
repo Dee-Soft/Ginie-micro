@@ -1,0 +1,35 @@
+# Nginx Load Balancer Configuration
+events {
+    worker_connections 1024;
+}
+
+http {
+    # Upstream for API Gateway
+    upstream api_gateway {
+        server api-gateway:3000;
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        # Security headers
+        add_header X-Frame-Options DENY always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-XSS-Protection "1; mode=block" always;
+
+        location / {
+            proxy_pass http://api_gateway;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /health {
+            access_log off;
+            add_header Content-Type text/plain;
+            return 200 "healthy\\n";
+        }
+    }
+}

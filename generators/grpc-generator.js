@@ -4,6 +4,9 @@ const inquirer = require('inquirer');
 
 const { sanitizeFileName, validateMicroserviceName } = require('../utils/security');
 
+const templateLoader = require('../utils/template-loader');
+
+
 async function generateGrpcMicroservice(serviceName, databaseType, includeRedis) {
   // Validate service name
   validateMicroserviceName(serviceName);
@@ -18,52 +21,35 @@ async function generateGrpcMicroservice(serviceName, databaseType, includeRedis)
   const { nodeImage } = await inquirer.prompt([{
     type: 'input',
     name: 'nodeImage',
-    message: `Node.js image for ${serviceName} Dockerfile (default: 24-alpine):`,
+    message: `Node.js image for ${sanitizedServiceName} Dockerfile (default: 24-alpine):`,
     default: '24-alpine'
   }]);
   
   // Create directory structure
   await fs.ensureDir(basePath);
 
-  // Add database-specific environment variables
-  const envContent = `# ${sanitizedServiceName} Microservice Configuration
-NODE_ENV=development
-PORT=3000
-LOG_LEVEL=info
-
-# Database Configuration
-DB_HOST=${serviceName}-db
-DB_PORT=${databaseType === 'mongodb' ? '27017' : databaseType === 'postgres' ? '5432' : '3306'}
-DB_NAME=${serviceName}_db
-DB_USER=user
-DB_PASSWORD=password
-
-# Redis Configuration
-${includeRedis ? `REDIS_HOST=${sanitizedServiceName}-redis
-REDIS_PORT=6379` : '# REDIS_HOST=redis\n# REDIS_PORT=6379'}
-`;
+  // Use template for .env
+  const envContent = await templateLoader.renderTemplate('env', {
+    serviceName,
+    port: 3000,
+    dbHost: `${sanitizedServiceName}-db`,
+    dbPort: databaseType === 'mongodb' ? '27017' : databaseType === 'postgres' ? '5432' : '3306',
+    dbName: `${sanitizedServiceName}_db`,
+    dbUser: 'user',
+    dbPassword: 'password',
+    includeRedis,
+    redisHost: includeRedis ? `${sanitizedServiceName}-redis` : 'redis'
+  });
 
   await fs.writeFile(path.join(basePath, '.env'), envContent);
   await fs.writeFile(path.join(basePath, '.env.example'), envContent);
+
+  const dockerfileContent = await templateLoader.renderTemplate('dockerfile', {
+    nodeVersion: versions.node,
+    port: 50051
+  });
   
-  
-  // Create Dockerfile
-  const dockerfileContent = `FROM node:${nodeImage}
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY proto/ ./proto/
-COPY src/ ./src/
-
-EXPOSE 50051
-
-CMD ["npm", "start"]
-`;
-  
+    
   await fs.writeFile(path.join(basePath, 'Dockerfile'), dockerfileContent);
   
   // Create other files (empty)

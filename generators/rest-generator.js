@@ -4,6 +4,9 @@ const inquirer = require('inquirer');
 
 const { sanitizeFileName, validateMicroserviceName } = require('../utils/security');
 
+const templateLoader = require('../utils/template-loader');
+
+
 async function generateRestMicroservice(serviceName, databaseType, includeRedis) {
   // Validate service name
   validateMicroserviceName(serviceName);
@@ -23,23 +26,19 @@ async function generateRestMicroservice(serviceName, databaseType, includeRedis)
     default: '24-alpine'
   }]);
 
-  // Add database-specific environment variables
-  const envContent = `# ${sanitizedServiceName} Microservice Configuration
-NODE_ENV=development
-PORT=3000
-LOG_LEVEL=info
+  // Use template for .env
+  const envContent = await templateLoader.renderTemplate('env', {
+    serviceName,
+    port: 3000,
+    dbHost: `${serviceName}-db`,
+    dbPort: databaseType === 'mongodb' ? '27017' : databaseType === 'postgres' ? '5432' : '3306',
+    dbName: `${serviceName}_db`,
+    dbUser: 'user',
+    dbPassword: 'password',
+    includeRedis,
+    redisHost: includeRedis ? `${serviceName}-redis` : 'redis'
+  });
 
-# Database Configuration
-DB_HOST=${sanitizedServiceName}-db
-DB_PORT=${databaseType === 'mongodb' ? '27017' : databaseType === 'postgres' ? '5432' : '3306'}
-DB_NAME=${sanitizedServiceName}_db
-DB_USER=user
-DB_PASSWORD=password
-
-# Redis Configuration
-${includeRedis ? `REDIS_HOST=${sanitizedServiceName}-redis
-REDIS_PORT=6379` : '# REDIS_HOST=redis\n# REDIS_PORT=6379'}
-`;
 
   await fs.writeFile(path.join(basePath, '.env'), envContent);
   await fs.writeFile(path.join(basePath, '.env.example'), envContent);
@@ -47,22 +46,12 @@ REDIS_PORT=6379` : '# REDIS_HOST=redis\n# REDIS_PORT=6379'}
   
   // Create directory structure
   await fs.ensureDir(basePath);
-  
-  // Create Dockerfile
-  const dockerfileContent = `FROM node:${nodeImage}
 
-WORKDIR /app
+  const dockerfileContent = await templateLoader.renderTemplate('dockerfile', {
+    nodeVersion: versions.node,
+    port: 3000
+  });
 
-COPY package*.json ./
-
-RUN npm install --only=production
-
-COPY . .
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
-`;
   
   await fs.writeFile(path.join(basePath, 'Dockerfile'), dockerfileContent);
   

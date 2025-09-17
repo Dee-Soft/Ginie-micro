@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  {{#each services}}
+  {{this.name}}:
+    {{#if this.build}}
+    build:
+      context: {{this.build.context}}
+      dockerfile: Dockerfile
+    {{else}}
+    image: {{this.image}}
+    {{/if}}
+    {{#if this.ports}}
+    ports:
+      {{#each this.ports}}
+      - "{{this}}"
+      {{/each}}
+    {{/if}}
+    {{#if this.environment}}
+    environment:
+      {{#each this.environment}}
+      - {{this}}
+      {{/each}}
+    {{/if}}
+    {{#if this.networks}}
+    networks:
+      {{#each this.networks}}
+      - {{this}}
+      {{/each}}
+    {{/if}}
+    {{#if this.depends_on}}
+    depends_on:
+      {{#each this.depends_on}}
+      - {{this}}
+      {{/each}}
+    {{/if}}
+    {{#if this.volumes}}
+    volumes:
+      {{#each this.volumes}}
+      - {{this}}
+      {{/each}}
+    {{/if}}
+    restart: unless-stopped
+  {{/each}}
+
+networks:
+  gateway_network:
+    driver: bridge
+  internal_network:
+    driver: bridge
+    internal: true
+
+volumes:
+  {{#each volumes}}
+  {{this.name}}:
+  {{/each}}

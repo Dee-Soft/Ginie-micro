@@ -1,6 +1,8 @@
 const fs = require('fs-extra');
 const path = require('path');
 
+const templateLoader = require('../utils/template-loader');
+
 async function generateNginxConfig(projectPath, services = []) {
     const nginxConfig = `# Nginx Load Balancer Configuration
 events {

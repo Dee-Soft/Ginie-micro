@@ -1,6 +1,8 @@
 const fs = require('fs-extra');
 const path = require('path');
 
+const templateLoader = require('../utils/template-loader');
+
 async function generateDockerCompose(projectPath, options) {
   const { projectName, includeApiGateway, includeNginx, protocol } = options;
   
