@@ -1,55 +1,101 @@
-version: '3.8'
+# Docker Compose Configuration
+# Generated: {{generatedAt}}
+# Project: {{projectName}}
+
+version: '{{version}}'
+
 services:
   {{#each services}}
-  {{this.name}}:
+  {{@key}}:
     {{#if this.build}}
     build:
       context: {{this.build.context}}
-      dockerfile: Dockerfile
-    {{else}}
+      {{#if this.build.dockerfile}}dockerfile: {{this.build.dockerfile}}{{/if}}
+      {{#if this.build.args}}args:{{#each this.build.args}}
+        {{@key}}: {{this}}{{/each}}{{/if}}
+    {{else if this.image}}
     image: {{this.image}}
     {{/if}}
+    {{#if this.container_name}}container_name: {{this.container_name}}{{/if}}
     {{#if this.ports}}
     ports:
-      {{#each this.ports}}
-      - "{{this}}"
-      {{/each}}
+      {{#each this.ports}}"{{this}}"{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+    {{#if this.expose}}
+    expose:
+      {{#each this.expose}}"{{this}}"{{#unless @last}}
+      {{/unless}}{{/each}}
     {{/if}}
     {{#if this.environment}}
     environment:
-      {{#each this.environment}}
-      - {{this}}
-      {{/each}}
+      {{#each this.environment}}{{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
     {{/if}}
-    {{#if this.networks}}
-    networks:
-      {{#each this.networks}}
-      - {{this}}
-      {{/each}}
-    {{/if}}
-    {{#if this.depends_on}}
-    depends_on:
-      {{#each this.depends_on}}
-      - {{this}}
-      {{/each}}
+    {{#if this.env_file}}
+    env_file:
+      {{#each this.env_file}}{{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
     {{/if}}
     {{#if this.volumes}}
     volumes:
-      {{#each this.volumes}}
-      - {{this}}
-      {{/each}}
+      {{#each this.volumes}}{{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
     {{/if}}
-    restart: unless-stopped
+    {{#if this.networks}}
+    networks:
+      {{#each this.networks}}{{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+    {{#if this.depends_on}}
+    depends_on:
+      {{#each this.depends_on}}{{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+    {{#if this.restart}}restart: {{this.restart}}{{/if}}
+    {{#if this.command}}command: {{this.command}}{{/if}}
+    {{#if this.entrypoint}}entrypoint: {{this.entrypoint}}{{/if}}
+    {{#if this.healthcheck}}
+    healthcheck:
+      {{#each this.healthcheck}}{{@key}}: {{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+    {{#if this.deploy}}
+    deploy:
+      {{#each this.deploy}}{{@key}}: {{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+    {{#if this.labels}}
+    labels:
+      {{#each this.labels}}{{@key}}: {{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+    {{#if this.extra_hosts}}
+    extra_hosts:
+      {{#each this.extra_hosts}}{{@key}}: {{this}}{{#unless @last}}
+      {{/unless}}{{/each}}
+    {{/if}}
+
   {{/each}}
 
 networks:
-  gateway_network:
-    driver: bridge
-  internal_network:
-    driver: bridge
-    internal: true
+  {{#each networks}}
+  {{@key}}:
+    {{#each this}}{{@key}}: {{this}}{{#unless @last}}
+    {{/unless}}{{/each}}
+  {{/each}}
 
 volumes:
   {{#each volumes}}
-  {{this.name}}:
+  {{@key}}:
+    {{#each this}}{{@key}}: {{this}}{{#unless @last}}
+    {{/unless}}{{/each}}
   {{/each}}
+
+# Optional configurations
+{{#if configs}}configs:{{#each configs}}
+  {{@key}}:{{#each this}}
+    {{@key}}: {{this}}{{/each}}{{/each}}{{/if}}
+{{#if secrets}}secrets:{{#each secrets}}
+  {{@key}}:{{#each this}}
+    {{@key}}: {{this}}{{/each}}{{/each}}{{/if}}
