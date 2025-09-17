@@ -18,7 +18,13 @@
     "lint": "eslint .",
     "audit": "npm audit --audit-level=moderate",
     "security-check": "node utils/security.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "update:docker": "node scripts/update-versions.js docker",
+    "update:npm": "node scripts/update-versions.js npm",
+    "update:all": "node scripts/update-versions.js all",
+    "check:versions": "node -e \"require('./utils/version-checker').checkAllVersions().then(console.log)\"",
+    "ginie": "npx ginie-micro",
+    "dev": "concurrently \"npm run dev --workspace=*\""
   },
   "keywords": [
     "microservice",
@@ -41,7 +47,9 @@
     "fs-extra": "^11.3.1",
     "inquirer": "^8.2.7",
     "js-yaml": "^4.1.0",
-    "simple-git": "^3.28.0"
+    "simple-git": "^3.28.0",
+    "axios": "^1.5.0",
+    "handlebars": "^4.7.8"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
